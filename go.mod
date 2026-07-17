@@ -2,7 +2,7 @@ module github.com/bots-go-framework/bots-fw-store
 
 go 1.22
 
-require github.com/strongo/validation v0.0.9
+require github.com/strongo/validation v0.0.10
 
 require (
 	github.com/stretchr/testify v1.11.1

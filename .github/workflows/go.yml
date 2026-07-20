@@ -16,5 +16,9 @@ jobs:
     permissions:
       contents: write
     uses: strongo/cicd/.github/workflows/workflow.yml@main
+    with:
+      # The shared semantic-release step currently requires package.json even
+      # for Go-only modules. Keep CI green and publish explicit v0 tags.
+      disable-version-bumping: true
     secrets:
       gh_token: ${{ secrets.GITHUB_TOKEN }}

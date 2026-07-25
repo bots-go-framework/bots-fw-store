@@ -15,8 +15,17 @@ import (
 // insert.
 func TestChatBaseData_Validate_botUserIDs(t *testing.T) {
 	// A minimally valid record, so each case below varies only BotUserIDs.
+	// DtCreated/DtUpdated must be set here too: ChatBaseData.Validate now
+	// delegates to BotBaseData.Validate (see
+	// TestChatBaseData_Validate_delegatesToBotBaseData below), so a zero
+	// BotBaseData would fail every case in this table for a reason unrelated
+	// to what it is actually testing.
+	validTimestamp := time.Date(2026, 7, 25, 9, 0, 0, 0, time.UTC)
 	newChat := func(botUserIDs ...string) *ChatBaseData {
-		return &ChatBaseData{BotUserIDs: botUserIDs}
+		return &ChatBaseData{
+			BotBaseData: BotBaseData{DtCreated: validTimestamp, DtUpdated: validTimestamp},
+			BotUserIDs:  botUserIDs,
+		}
 	}
 
 	t.Run("clean id is accepted", func(t *testing.T) {
@@ -66,9 +75,11 @@ func TestChatBaseData_Validate_botUserIDs(t *testing.T) {
 // so the fix above cannot be "verified" by a test file that only ever
 // exercises one branch.
 func TestChatBaseData_Validate_dtForbidden(t *testing.T) {
+	created := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
 	forbidden := time.Date(2026, 7, 25, 12, 0, 0, 0, time.UTC)
 
 	chat := &ChatBaseData{
+		BotBaseData:     BotBaseData{DtCreated: created, DtUpdated: created},
 		BotUserIDs:      []string{"123"},
 		DtForbidden:     forbidden,
 		DtForbiddenLast: forbidden.Add(-time.Hour),
@@ -80,5 +91,30 @@ func TestChatBaseData_Validate_dtForbidden(t *testing.T) {
 	chat.DtForbiddenLast = forbidden.Add(time.Hour)
 	if err := chat.Validate(); err != nil {
 		t.Fatalf("Validate() = %v, want nil when DtForbiddenLast follows DtForbidden", err)
+	}
+}
+
+// TestChatBaseData_Validate_delegatesToBotBaseData pins the fix for a gap in
+// the same shape as botUserIDs above but for the whole embedded BotBaseData:
+// ChatBaseData.Validate checked its own fields (BotUserIDs, DtForbidden vs
+// DtForbiddenLast, InteractionsCount) but never called BotBaseData.Validate,
+// unlike PlatformUserBaseDbo.Validate, which already delegates to it. So a
+// chat record's DtCreated/DtUpdated were never actually checked by Validate,
+// even though EnsureLinked relies on BotBaseData.Validate's rules (via
+// BotBaseData.EnsureTimestamps) to decide whether a record is safe to
+// persist.
+func TestChatBaseData_Validate_delegatesToBotBaseData(t *testing.T) {
+	chat := &ChatBaseData{BotUserIDs: []string{"123"}} // zero DtCreated/DtUpdated
+	err := chat.Validate()
+	if err == nil {
+		t.Fatal("Validate() = nil, want an error because BotBaseData is invalid (zero DtCreated/DtUpdated)")
+	}
+	if !strings.Contains(err.Error(), "dtCreated") {
+		t.Errorf("Validate() = %v, want it to name dtCreated", err)
+	}
+
+	chat.BotBaseData.EnsureTimestamps(time.Date(2026, 7, 25, 9, 0, 0, 0, time.UTC))
+	if err := chat.Validate(); err != nil {
+		t.Fatalf("Validate() = %v, want nil once BotBaseData is stamped", err)
 	}
 }

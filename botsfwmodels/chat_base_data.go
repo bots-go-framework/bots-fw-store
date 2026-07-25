@@ -58,6 +58,9 @@ func (e *ChatBaseData) Validate() error {
 	//if err := e.ChatKey.Validate(); err != nil {
 	//	return err
 	//}
+	if err := e.BotBaseData.Validate(); err != nil {
+		return err
+	}
 	if len(e.BotUserIDs) == 0 {
 		return validation.NewErrRecordIsMissingRequiredField("botUserIDs")
 	}

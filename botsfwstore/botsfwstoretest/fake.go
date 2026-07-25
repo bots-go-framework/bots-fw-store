@@ -16,7 +16,7 @@ import (
 type FakeStateStore struct {
 	ClaimWebhookUpdateFunc           func(context.Context, botsfwstore.WebhookUpdateKey, time.Time) (botsfwstore.WebhookUpdateClaim, error)
 	CompleteWebhookUpdateFunc        func(context.Context, botsfwstore.WebhookUpdateKey, string) error
-	FailWebhookUpdateFunc            func(context.Context, botsfwstore.WebhookUpdateKey, string, string) error
+	FailWebhookUpdateFunc            func(context.Context, botsfwstore.WebhookUpdateKey, string, botsfwstore.WebhookUpdateFailureCode) error
 	EnsureLinkedFunc                 func(context.Context, botsfwstore.LinkRequest) (botsfwstore.LinkedIdentity, error)
 	PlatformUserFunc                 func(context.Context, botsfwstore.Identity, func() botsfwmodels.PlatformUserData) (botsfwstore.PlatformUser, error)
 	AppUserFunc                      func(context.Context, string, string) (botsfwstore.AppUser, error)
@@ -38,7 +38,7 @@ func (s *FakeStateStore) CompleteWebhookUpdate(ctx context.Context, key botsfwst
 	return fmt.Errorf("FakeStateStore.CompleteWebhookUpdate is not configured")
 }
 
-func (s *FakeStateStore) FailWebhookUpdate(ctx context.Context, key botsfwstore.WebhookUpdateKey, leaseID string, failureCode string) error {
+func (s *FakeStateStore) FailWebhookUpdate(ctx context.Context, key botsfwstore.WebhookUpdateKey, leaseID string, failureCode botsfwstore.WebhookUpdateFailureCode) error {
 	if s != nil && s.FailWebhookUpdateFunc != nil {
 		return s.FailWebhookUpdateFunc(ctx, key, leaseID, failureCode)
 	}

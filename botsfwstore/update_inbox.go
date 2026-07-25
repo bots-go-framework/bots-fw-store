@@ -38,6 +38,28 @@ type WebhookUpdateClaim struct {
 	Attempts int
 }
 
+// WebhookUpdateFailureCode is a deliberately small operational classification.
+// It must not contain an error message, provider payload, identifier, or other
+// user-controlled value.
+type WebhookUpdateFailureCode string
+
+const (
+	WebhookUpdateFailureUnknown    WebhookUpdateFailureCode = "unknown"
+	WebhookUpdateFailureProcessing WebhookUpdateFailureCode = "processing_failed"
+	WebhookUpdateFailurePanic      WebhookUpdateFailureCode = "panic"
+)
+
+// NormalizeWebhookUpdateFailureCode prevents implementations from retaining
+// arbitrary caller input. Unknown values are intentionally coarsened.
+func NormalizeWebhookUpdateFailureCode(code WebhookUpdateFailureCode) WebhookUpdateFailureCode {
+	switch code {
+	case WebhookUpdateFailureProcessing, WebhookUpdateFailurePanic:
+		return code
+	default:
+		return WebhookUpdateFailureUnknown
+	}
+}
+
 func (c WebhookUpdateClaim) CanDispatch() bool {
 	return c.Status == WebhookUpdateClaimAcquired && c.LeaseID != ""
 }
@@ -49,7 +71,7 @@ func (c WebhookUpdateClaim) CanDispatch() bool {
 type WebhookUpdateInbox interface {
 	ClaimWebhookUpdate(ctx context.Context, key WebhookUpdateKey, leaseUntil time.Time) (WebhookUpdateClaim, error)
 	CompleteWebhookUpdate(ctx context.Context, key WebhookUpdateKey, leaseID string) error
-	// failureCode is an operational category (for example "dispatch_failed"),
-	// never a raw error message or provider payload.
-	FailWebhookUpdate(ctx context.Context, key WebhookUpdateKey, leaseID string, failureCode string) error
+	// failureCode is an operational category, never a raw error message or
+	// provider payload. Implementations must normalize it before persistence.
+	FailWebhookUpdate(ctx context.Context, key WebhookUpdateKey, leaseID string, failureCode WebhookUpdateFailureCode) error
 }

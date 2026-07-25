@@ -4,6 +4,7 @@ package botsfwstoretest
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/bots-go-framework/bots-fw-store/botsfwmodels"
 	"github.com/bots-go-framework/bots-fw-store/botsfwstore"
@@ -13,11 +14,35 @@ import (
 // reports an error so tests cannot accidentally rely on zero-value persistence
 // behavior.
 type FakeStateStore struct {
+	ClaimWebhookUpdateFunc           func(context.Context, botsfwstore.WebhookUpdateKey, time.Time) (botsfwstore.WebhookUpdateClaim, error)
+	CompleteWebhookUpdateFunc        func(context.Context, botsfwstore.WebhookUpdateKey, string) error
+	FailWebhookUpdateFunc            func(context.Context, botsfwstore.WebhookUpdateKey, string, botsfwstore.WebhookUpdateFailureCode) error
 	EnsureLinkedFunc                 func(context.Context, botsfwstore.LinkRequest) (botsfwstore.LinkedIdentity, error)
 	PlatformUserFunc                 func(context.Context, botsfwstore.Identity, func() botsfwmodels.PlatformUserData) (botsfwstore.PlatformUser, error)
 	AppUserFunc                      func(context.Context, string, string) (botsfwstore.AppUser, error)
 	SaveChatFunc                     func(context.Context, botsfwstore.Identity, botsfwmodels.BotChatData) error
 	SetPlatformUserAccessGrantedFunc func(context.Context, botsfwstore.Identity, func() botsfwmodels.PlatformUserData, bool) (botsfwstore.PlatformUser, error)
+}
+
+func (s *FakeStateStore) ClaimWebhookUpdate(ctx context.Context, key botsfwstore.WebhookUpdateKey, leaseUntil time.Time) (botsfwstore.WebhookUpdateClaim, error) {
+	if s != nil && s.ClaimWebhookUpdateFunc != nil {
+		return s.ClaimWebhookUpdateFunc(ctx, key, leaseUntil)
+	}
+	return botsfwstore.WebhookUpdateClaim{}, fmt.Errorf("FakeStateStore.ClaimWebhookUpdate is not configured")
+}
+
+func (s *FakeStateStore) CompleteWebhookUpdate(ctx context.Context, key botsfwstore.WebhookUpdateKey, leaseID string) error {
+	if s != nil && s.CompleteWebhookUpdateFunc != nil {
+		return s.CompleteWebhookUpdateFunc(ctx, key, leaseID)
+	}
+	return fmt.Errorf("FakeStateStore.CompleteWebhookUpdate is not configured")
+}
+
+func (s *FakeStateStore) FailWebhookUpdate(ctx context.Context, key botsfwstore.WebhookUpdateKey, leaseID string, failureCode botsfwstore.WebhookUpdateFailureCode) error {
+	if s != nil && s.FailWebhookUpdateFunc != nil {
+		return s.FailWebhookUpdateFunc(ctx, key, leaseID, failureCode)
+	}
+	return fmt.Errorf("FakeStateStore.FailWebhookUpdate is not configured")
 }
 
 var _ botsfwstore.StateStore = (*FakeStateStore)(nil)

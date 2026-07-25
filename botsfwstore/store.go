@@ -113,6 +113,7 @@ func (v LinkRequest) Validate() error {
 // StateStore provides the framework's persistence use cases. It is deliberately
 // narrow: command handlers get no generic database access through this contract.
 type StateStore interface {
+	WebhookUpdateInbox
 	// EnsureLinked resolves or creates the identity state described by request.
 	// A durable implementation must atomically persist its own database changes
 	// before returning; router dispatch happens after this call returns.

@@ -49,5 +49,7 @@ func (c WebhookUpdateClaim) CanDispatch() bool {
 type WebhookUpdateInbox interface {
 	ClaimWebhookUpdate(ctx context.Context, key WebhookUpdateKey, leaseUntil time.Time) (WebhookUpdateClaim, error)
 	CompleteWebhookUpdate(ctx context.Context, key WebhookUpdateKey, leaseID string) error
-	FailWebhookUpdate(ctx context.Context, key WebhookUpdateKey, leaseID string, cause error) error
+	// failureCode is an operational category (for example "dispatch_failed"),
+	// never a raw error message or provider payload.
+	FailWebhookUpdate(ctx context.Context, key WebhookUpdateKey, leaseID string, failureCode string) error
 }

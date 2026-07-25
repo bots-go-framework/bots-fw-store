@@ -65,7 +65,7 @@ func (e *ChatBaseData) Validate() error {
 		if botUserID == "" {
 			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("botUserIDs[%d]", i), "is empty string")
 		}
-		if strings.TrimSpace(botUserID) == botUserID {
+		if strings.TrimSpace(botUserID) != botUserID {
 			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("botUserIDs[%d]", i), "has leading or trailing spaces")
 		}
 	}

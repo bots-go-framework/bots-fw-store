@@ -28,7 +28,7 @@ func TestPlatformUserBaseDbo_Validate_botIDs(t *testing.T) {
 
 	t.Run("stamping timestamps alone is not enough - botIDs is still missing", func(t *testing.T) {
 		data := &PlatformUserBaseDbo{}
-		data.BotBaseData.EnsureTimestamps(now)
+		data.EnsureTimestamps(now)
 		err := data.Validate()
 		if err == nil {
 			t.Fatal("Validate() = nil, want an error because BotIDs is still empty")
@@ -40,8 +40,8 @@ func TestPlatformUserBaseDbo_Validate_botIDs(t *testing.T) {
 
 	t.Run("stamping timestamps and ensuring the bot id makes the record valid", func(t *testing.T) {
 		data := &PlatformUserBaseDbo{}
-		data.BotBaseData.EnsureTimestamps(now)
-		data.WithRequiredBotIDs.EnsureBotID("bot-1")
+		data.EnsureTimestamps(now)
+		data.EnsureBotID("bot-1")
 		if err := data.Validate(); err != nil {
 			t.Fatalf("Validate() = %v, want nil once both timestamps and botIDs are set", err)
 		}

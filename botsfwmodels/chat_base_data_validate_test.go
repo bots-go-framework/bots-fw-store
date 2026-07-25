@@ -113,7 +113,7 @@ func TestChatBaseData_Validate_delegatesToBotBaseData(t *testing.T) {
 		t.Errorf("Validate() = %v, want it to name dtCreated", err)
 	}
 
-	chat.BotBaseData.EnsureTimestamps(time.Date(2026, 7, 25, 9, 0, 0, 0, time.UTC))
+	chat.EnsureTimestamps(time.Date(2026, 7, 25, 9, 0, 0, 0, time.UTC))
 	if err := chat.Validate(); err != nil {
 		t.Fatalf("Validate() = %v, want nil once BotBaseData is stamped", err)
 	}

@@ -5,8 +5,8 @@ go 1.22
 require github.com/strongo/validation v0.0.10
 
 require (
-	github.com/stretchr/testify v1.11.1
-	github.com/strongo/slice v0.3.5
+	github.com/stretchr/testify v1.12.0
+	github.com/strongo/slice v0.3.6
 )
 
 require (

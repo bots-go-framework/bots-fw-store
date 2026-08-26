@@ -4,11 +4,11 @@ go 1.26.0
 
 toolchain go1.27.0
 
-require github.com/strongo/validation v0.0.10
+require github.com/strongo/validation v0.0.12
 
 require (
 	github.com/stretchr/testify v1.12.1
-	github.com/strongo/slice v0.3.7
+	github.com/strongo/slice v0.3.9
 )
 
 require (

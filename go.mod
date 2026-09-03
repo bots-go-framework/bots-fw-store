@@ -2,7 +2,7 @@ module github.com/bots-go-framework/bots-fw-store
 
 go 1.26.0
 
-toolchain go1.27.0
+toolchain go1.27.1
 
 require github.com/strongo/validation v0.0.12
 

@@ -20,5 +20,6 @@ jobs:
       # The shared semantic-release step currently requires package.json even
       # for Go-only modules. Keep CI green and publish explicit v0 tags.
       disable-version-bumping: true
+      min_test_coverage_percent: 100
     secrets:
       gh_token: ${{ secrets.GITHUB_TOKEN }}

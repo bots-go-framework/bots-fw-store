@@ -8,7 +8,7 @@ require github.com/strongo/validation v0.0.15
 
 require (
 	github.com/stretchr/testify v1.12.1
-	github.com/strongo/slice v0.3.12
+	github.com/strongo/slice v0.3.13
 )
 
 require (

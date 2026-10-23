@@ -2,13 +2,13 @@ module github.com/bots-go-framework/bots-fw-store
 
 go 1.26.0
 
-toolchain go1.27.2
+toolchain go1.27.3
 
-require github.com/strongo/validation v0.0.16
+require github.com/strongo/validation v0.0.17
 
 require (
 	github.com/stretchr/testify v1.12.1
-	github.com/strongo/slice v0.3.13
+	github.com/strongo/slice v0.3.14
 )
 
 require (
